@@ -1,0 +1,22 @@
+﻿version: "3.9"  # optional since v1.27.0
+services: 
+  sql:
+    image: "mcr.microsoft.com/mssql/server:2017-latest"
+    container_name: sql_hotel_app
+    ports: # not actually needed, because the two services are on the same network.
+      - "1433:1433" 
+    volumes:
+      - "C:/DockerVolumes/Hotel/data/:/var/opt/mssql/data/"
+      - "C:/DockerVolumes/Hotel/log/:/var/opt/mssql/log/"
+      - "C:/DockerVolumes/Hotel/secrets/:/var/opt/mssql/secrets/"
+    environment:
+      - ACCEPT_EULA=y
+      - SA_PASSWORD=SqlUser123$
+ 
+  hotelweb_api:
+    build: . # build the Docker image 
+    container_name: hotelweb_api_application
+    ports:
+      - "5000:80"
+    depends_on: 
+      - sql

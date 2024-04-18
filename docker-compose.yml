@@ -1,0 +1,29 @@
+version: '3.4'
+
+networks:
+    myAppNetwork:        
+
+services:
+    HotelSqlServerDb:
+        container_name: SqlServerContainer
+        image: mcr.microsoft.com/mssql/server:2019-latest
+        ports:
+            - 1433:1433
+        environment:
+            - ACCEPT_EULA=Y
+            - SA_PASSWORD=SqlUser123$
+    HotelWebApi:
+        container_name: WebApiContainer
+        restart: always
+        image: ${DOCKER_REGISTRY-}hotel
+        ports:
+            - 8086:5001
+        build:
+          context: .
+          dockerfile: HotelBooking/Dockerfile
+        environment: 
+          - DBHOST=HotelSqlServerDb
+          - ASPNETCORE_ENVIRONMENT=Development
+          - ASPNETCORE_HTTP_PORTS=5001
+        depends_on:
+            - HotelSqlServerDb

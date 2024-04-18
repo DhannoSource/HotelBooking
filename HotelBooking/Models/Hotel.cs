@@ -17,6 +17,8 @@
         public string? Name { get; set; }
         public string? Description { get; set; }
         public Address?  Address  { get; set; }
+
+        public int AddressId { get; set; }
         public bool HasPool { get; set; }
         public bool HasGym { get; set; }
         public int Stars { get; set; }
