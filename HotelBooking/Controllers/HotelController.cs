@@ -9,6 +9,10 @@ using System.Linq;
 using System.ComponentModel;
 using Azure;
 using System.Diagnostics.Metrics;
+using Hotel.Repositories;
+using RabbitMQ.Client;
+using System.Text;
+using Hotel.RabbitMQ;
 
 namespace Hotel.Controllers
 {
@@ -17,10 +21,13 @@ namespace Hotel.Controllers
     public class HotelController : ControllerBase
     {
         private readonly HotelDbContext _context;
+        private readonly IHotelRespository _hotelRespository;
+        private readonly IRabbitMQProducer _rabitMQProducer;
 
-        public HotelController(HotelDbContext context)
+        public HotelController(IHotelRespository hotelRespository, IRabbitMQProducer rabbitMQProducer)
         {
-            _context = context;
+            _hotelRespository = hotelRespository;
+            _rabitMQProducer = rabbitMQProducer;
         }
 
 
@@ -32,8 +39,9 @@ namespace Hotel.Controllers
             try
             {
                 string message;
-               var lstHotels = await _context.Hotel.ToListAsync();
-              
+
+                var lstHotels = await _hotelRespository.GetAllHotels();
+
                 if (lstHotels.Any())
                 {
                     message = "Records found.";
@@ -64,18 +72,13 @@ namespace Hotel.Controllers
         }
         //Get Hotels
         [HttpGet("hotels/{city}/{country}/{noOfGuests}/{checkInDate}/{checkOutDate}")]
-        public IActionResult SearchHotels(string city, string country, string noOfGuests, string checkInDate, string checkOutDate)
+        public async Task<IActionResult> SearchHotels(string city, string country, string noOfGuests, string checkInDate, string checkOutDate)
         {
 
             ResponseDto response;
             try
             {
-                List<int> ids = _context.Address.ToList()
-              .Where(x => (x.City.ToLower() == city.ToLower() && x.Country.ToLower() == country.ToLower()))
-              .Select(x => x.Id)
-              .ToList();
-
-                var lstHotels = _context.Hotel.ToList().Where(x => ids.Contains((int)x.Address?.Id));
+              var lstHotels = await _hotelRespository.GetHotelsByBookingDetails(city,country,noOfGuests,checkInDate,checkOutDate);
                 string message;
                 if (lstHotels.Any())
                 {
@@ -121,9 +124,18 @@ namespace Hotel.Controllers
                     StartDate = request.StartDate,
                     EndDate = request.EndDate
                 };
-                _context.RoomBooking.Add(roomBooking);
-                _context.SaveChanges();
-
+                //_context.RoomBooking.Add(roomBooking);
+                //_context.SaveChanges();
+                _hotelRespository.CreateBooking(roomBooking);
+                HotelTransaction hotelTransaction = new HotelTransaction()
+                {
+                    BookingDate = DateTime.Now,
+                    BookingId = roomBooking.Id,
+                    BookingType = "Hotel",
+                    UserId = request.UserId,
+                };
+                //send the inserted product data to the queue and consumer will listening this data from queue
+                _rabitMQProducer.SendHotelBookingtMessage(hotelTransaction);
                 response = new ResponseDto()
                 {
                     Success = true,
@@ -252,6 +264,19 @@ namespace Hotel.Controllers
                 };
                 return Ok(response);
             }
+        }
+
+        private void PublishToMessageQueue(string integrationEvent, string eventData)
+        {
+            // TOOO: Reuse and close connections and channel, etc, 
+            var factory = new ConnectionFactory();
+            var connection = factory.CreateConnection();
+            var channel = connection.CreateModel();
+            var body = Encoding.UTF8.GetBytes(eventData);
+            channel.BasicPublish(exchange: "user",
+                                             routingKey: integrationEvent,
+                                             basicProperties: null,
+                                             body: body);
         }
 
     }

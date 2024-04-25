@@ -4,6 +4,15 @@ networks:
     myAppNetwork:        
 
 services:
+    RabbitMQ:
+        container_name: RabbitMQContainer
+        image: rabbitmq:3-management
+        ports:
+            - 15672:15672
+            - 5672:5672
+        environment:
+            RABBITMQ_DEFAULT_USER: "guest"
+            RABBITMQ_DEFAULT_PASS: "guest"
     HotelSqlServerDb:
         container_name: SqlServerContainer
         image: mcr.microsoft.com/mssql/server:2019-latest
@@ -25,5 +34,24 @@ services:
           - DBHOST=HotelSqlServerDb
           - ASPNETCORE_ENVIRONMENT=Development
           - ASPNETCORE_HTTP_PORTS=5001
+          - RabbitMQConnectionString=amqp://guest:guest@rabbitmq:5672
         depends_on:
             - HotelSqlServerDb
+            - RabbitMQ
+    TransactionWebApi:
+        container_name: TransactionWebApiContainer
+        restart: always
+        image: ${DOCKER_REGISTRY-}transaction
+        ports:
+            - 8088:6001
+        build:
+          context: .
+          dockerfile: Transaction/Dockerfile
+        environment: 
+          - DBHOST=HotelSqlServerDb
+          - ASPNETCORE_ENVIRONMENT=Development
+          - ASPNETCORE_HTTP_PORTS=6001
+          - RabbitMQConnectionString=amqp://guest:guest@rabbitmq:5672
+        depends_on:
+            - HotelSqlServerDb
+            - RabbitMQ

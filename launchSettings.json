@@ -6,7 +6,8 @@
       "launchBrowser": true,
       "serviceActions": {
         "HotelSqlServerDb": "StartWithoutDebugging",
-        "HotelWebApi": "StartDebugging"
+        "HotelWebApi": "StartDebugging",
+        "TransactionWebApi": "StartDebugging"
       }
     }
   }

@@ -6,7 +6,8 @@
     <ProjectGuid>ebdc0c0a-c043-47ec-a9a5-cb7675774f84</ProjectGuid>
     <DockerLaunchAction>LaunchBrowser</DockerLaunchAction>
     <DockerServiceUrl>{Scheme}://localhost:{ServicePort}/swagger</DockerServiceUrl>
-    <DockerServiceName>HotelWebApi</DockerServiceName>
+	  <DockerServiceName>HotelWebApi</DockerServiceName>
+	<DockerServiceName>TransactionWebApi</DockerServiceName>
   </PropertyGroup>
   <ItemGroup>
     <None Include="docker-compose.override.yml">

@@ -7,6 +7,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Hotel", "HotelBooking\Hotel
 EndProject
 Project("{E53339B2-1760-4266-BCC7-CA923CBCF16C}") = "docker-compose", "docker-compose.dcproj", "{EBDC0C0A-C043-47EC-A9A5-CB7675774F84}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Transaction", "Transaction\Transaction.csproj", "{415D0538-1C54-4FE4-B1CC-5677E80DF015}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{EBDC0C0A-C043-47EC-A9A5-CB7675774F84}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EBDC0C0A-C043-47EC-A9A5-CB7675774F84}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EBDC0C0A-C043-47EC-A9A5-CB7675774F84}.Release|Any CPU.Build.0 = Release|Any CPU
+		{415D0538-1C54-4FE4-B1CC-5677E80DF015}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{415D0538-1C54-4FE4-B1CC-5677E80DF015}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{415D0538-1C54-4FE4-B1CC-5677E80DF015}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{415D0538-1C54-4FE4-B1CC-5677E80DF015}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
